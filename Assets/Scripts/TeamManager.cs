@@ -2,22 +2,49 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+
+
 public class Unit
 {
+    private int team;
+    private GameObject soldier;
+    private double[] cartesianCoords;
+    private double[] polarCoords;
+    private Unit prev;
+    private Unit next;
+
+
+    public int Team => team;
+    public GameObject Soldier => soldier;
+    public double[] CartesianCoords => cartesianCoords;
+    public double[] PolarCoords => polarCoords;
+    public Unit Prev
+    {
+        get => prev;
+        set => prev = value;
+
+    }
+    public Unit Next
+    {
+        get => next;
+        set => next = value;
+    }
+
+    
     public Unit()
     {
 
     }
 
-    public Unit(GameObject obj, int t, double[] cartesianCoords)
+    public Unit(GameObject obj, int t, double[] CC, double[] PP)
     {
-        int team = t;
-        GameObject unit = obj;
+        team = t;
+        soldier= obj;
+        cartesianCoords = CC;
+        polarCoords = PP;
     }
-    public double[] getCartesianCoords()
-    {
-        return ca
-    }
+
+    
 }
 public class Grid
 {
@@ -31,7 +58,7 @@ public class Grid
     public int RadialPartitionCount => _radialPartitionCount;
     public int AngularPartitionCount => _angularPartitionCount;
     public double[] FlashlightRegion => _flashlightRegion;
-    public Unit[,] cells => _cells;
+    public Unit[,] Cells => _cells;
 
     public Grid()
     {
@@ -40,17 +67,78 @@ public class Grid
     //flashlight region, radial partition count, arena radius, angular partition count
     public Grid(double[] flRg, int rptct, double ar, int aptct)
     {
-        arenaRadius = ar;
-        radialPartitionCount = rptct;
-        angularPartitionCount = aptct;
-        flashlightRegion = flRg;
-        cells = new Unit[aptct, rptct];
+        _arenaRadius = ar;
+        _radialPartitionCount = rptct;
+        _angularPartitionCount = aptct;
+        _flashlightRegion = flRg;
+        _cells = new Unit[rptct, aptct];
     }
 
     public void addUnit(Unit go, int team)
     {
-        go.get
+        double[] pp = go.PolarCoords;
+
+
+        int cellX = (int)(pp[0] / (_arenaRadius / _radialPartitionCount));
+        int cellY = (int)(pp[1] / ((_flashlightRegion[1] - _flashlightRegion[0])/_angularPartitionCount));
+        go.Prev = null;
+        go.Next = _cells[cellX, cellY];
+        if (go.Next != null)
+        {
+            go.Next.Prev= go;
+        }
     }
+
+    public void handleMelee()
+    {
+        for (int r = 0; r < _radialPartitionCount; r++)
+        {
+            for (int a = 0; a < _angularPartitionCount; a++)
+            {
+                handleCells(_cells[r, a]);
+            }
+        }
+    }
+
+    public void handleCells(Unit unit)
+    {
+        while(unit !=null)
+        {
+            Unit ot = unit.Next;
+            while(ot!=null)
+            {
+                if(unit
+            }
+        }
+    }
+    double[] transformPolarCoordinatesToCartesian(double radialPosition, double theta)
+    {
+        double xCoord = radialPosition * Math.Cos(theta);
+        double yCoord = radialPosition * Math.Sin(theta);
+
+        double[] storeCartesianCoordinates = new double[] { xCoord, yCoord };
+        return storeCartesianCoordinates;
+    }
+    double[] transformPolarCoordinatesToCartesian(double[] polarPair)
+    {
+
+        return transformPolarCoordinatesToCartesian(polarPair[0], polarPair[1]);
+    }
+    double[] transformCartesianCoordinatesToPolar(double x, double y)
+    {
+        double radialPosition = Math.Sqrt(x * x + y * y);
+        double angle = Math.Tan(x / y);
+
+        double[] storePolarCoordinates = new double[] { radialPosition, angle };
+
+        return storePolarCoordinates;
+    }
+    double[] transformCartesianCoordinatesToPolar(double[] cartesianCoords)
+    {
+
+        return transformCartesianCoordinatesToPolar(cartesianCoords[0], cartesianCoords[1]);
+    }
+
 }
 
 public class TeamManager : MonoBehaviour
@@ -103,14 +191,14 @@ public class TeamManager : MonoBehaviour
         if (team == 1)
         {
             GameObject tempGO = Instantiate(team1Template, cartesianToVector2(cartesianCoords), Quaternion.identity, parent);
-            Unit temp = new Unit(tempGO, team, cartesianCoords);
+            Unit temp = new Unit(tempGO, team, cartesianCoords, transformCartesianCoordinatesToPolar(cartesianCoords));
             MASTERGRID.addUnit(temp, team);
 
         }
         else
         {
             GameObject tempGO = Instantiate(team2Template, cartesianToVector2(cartesianCoords), Quaternion.identity, parent);
-            Unit temp = new Unit(tempGO, team, cartesianCoords);
+            Unit temp = new Unit(tempGO, team, cartesianCoords, transformCartesianCoordinatesToPolar(cartesianCoords));
             MASTERGRID.addUnit(temp, team);
 
             //support code for team selection
@@ -147,7 +235,6 @@ public class TeamManager : MonoBehaviour
     }
 
 
-
     double[] transformPolarCoordinatesToCartesian(double radialPosition, double theta)
     {
         double xCoord = radialPosition * Math.Cos(theta);
@@ -157,6 +244,11 @@ public class TeamManager : MonoBehaviour
         return storeCartesianCoordinates;
     }
 
+    double[] transformPolarCoordinatesToCartesian(double[] polarPair)
+    {
+ 
+        return transformPolarCoordinatesToCartesian(polarPair[0], polarPair[1]);
+    }
     double[] transformCartesianCoordinatesToPolar(double x, double y)
     {
         double radialPosition = Math.Sqrt(x * x + y * y);
@@ -166,6 +258,13 @@ public class TeamManager : MonoBehaviour
 
         return storePolarCoordinates;
     }
+
+    double[] transformCartesianCoordinatesToPolar(double[] cartesianCoords)
+    {
+     
+        return transformCartesianCoordinatesToPolar(cartesianCoords[0], cartesianCoords[1]);
+    }
+
 
     Vector2 cartesianToVector2(double[] coords)
     {
