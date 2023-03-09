@@ -7,7 +7,7 @@ public class FieldOfView : Singleton<FieldOfView>
 {
     // Start is called before the first frame update
     private Mesh mesh; 
-    private int energy; 
+    public int energy; 
     private float fov; 
     private Vector3 origin; 
     private float startingAngle; 
@@ -109,9 +109,10 @@ public class FieldOfView : Singleton<FieldOfView>
 
     }
 
-    public void lowerEnergy(bool powerOn) {
-      if (powerOn) energy -= 3; 
-      else energy -= 1; 
+    public void decreaseEnergy() {
+      //if (powerOn) energy -= 3;  
+      //else energy -= 1; 
+      energy -= 1;  
     }
 
     public void stopMovement() {

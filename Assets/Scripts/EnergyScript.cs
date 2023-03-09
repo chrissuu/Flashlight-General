@@ -9,12 +9,12 @@ public class EnergyScript : MonoBehaviour
 
   void Start() 
   {
-    EnergyLevel.text = FieldOfView.Instance.energy; 
+    EnergyLevel.text = FieldOfView.Instance.energy.ToString(); 
   }
   
   void Update() 
   {
-    EnergyLevel.text = FieldOfView.Instance.energy; 
+    EnergyLevel.text = FieldOfView.Instance.energy.ToString(); 
   }
   
 }
