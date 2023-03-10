@@ -3,18 +3,24 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-
 public class Unit
 {
     private int team;
     private GameObject soldier;
+    private SoldierController sc;
     private double[] cartesianCoords;
     private double[] polarCoords;
     private Unit prev;
     private Unit next;
-    
+
     private double health = 200;
     private double attackdmg = 100;
+    public double attackRange = 10;
+    public SoldierController SoldierC
+    { 
+        get => sc; 
+        set => sc = value;
+    }
 
     public double AttackDmg => attackdmg;
     public double Health
@@ -58,20 +64,51 @@ public class Unit
         soldier = obj;
         cartesianCoords = CC;
         polarCoords = PP;
+        SoldierC = obj.GetComponent<SoldierController>();
     }
 
     public void handleAttack(Unit ot)
     {
+        SoldierC.stopMoving();
         ot.health -= attackdmg;
-        if(ot.health < 0)
+        Debug.Log("health " + ot.health);
+        if (ot.health < 0)
         {
             UnityEngine.Object.Destroy(ot.Soldier, 0.0f);
+            UnityEngine.Object.Destroy(ot.SoldierC, 0.0f);
+
         }
     }
 
     public void approach(Unit ot)
     {
+        SoldierC.moveSoldier(ot.CartesianCoords);
+        ot.SoldierC.moveSoldier(CartesianCoords);
 
+        if(getEuclideanDistance(ot, this) < attackRange)
+        {
+            handleAttack(ot);
+            ot.handleAttack(this);
+        }
+        
+    }
+    public double getEuclideanDistance(Unit unit, Unit other)
+    {
+        Vector2 unitCoords = unit.SoldierC.transform.position;
+        Vector2 otherCoords = other.SoldierC.transform.position;
+
+        double unitX = unitCoords.x;
+        double unitY = unitCoords.y;
+
+        double otherX = otherCoords.x;
+        double otherY = otherCoords.y;
+
+        double diffX = unitX - otherX;
+        double diffY = unitY - otherY;
+
+        double euclDistance2D = Math.Sqrt(diffX * diffX + diffY * diffY);
+        Debug.Log("dist " + euclDistance2D);
+        return euclDistance2D;
     }
 }
 public class Grid
@@ -82,7 +119,13 @@ public class Grid
     private int _angularPartitionCount;
     private double[] _flashlightRegion;
     private Unit[,] _cells;
+    private List<Unit> units;
 
+    public List<Unit> UList
+    {
+        get => units;
+        set => units = value;
+    }
     public double AttackRange
     {
         get => _attackRange;
@@ -135,9 +178,9 @@ public class Grid
 
 
         int cellX = (int)Math.Floor(pp[0] / (_arenaRadius / _radialPartitionCount));
-        //Debug.Log("cellX " + cellX);
+        Debug.Log("cellX " + cellX);
         int cellY = (int)Math.Floor((pp[1] / (2*Math.PI / _angularPartitionCount)));
-        //Debug.Log("cellY " + cellY);
+        Debug.Log("cellY " + cellY);
         //Debug.Log("Rank " + _cells.Rank);
         //Debug.Log("Length " + _cells.Length);
        
@@ -150,18 +193,73 @@ public class Grid
         }
     }
     //basically starts the attack
-    public void handleMelee()
+    public void handleMelee(bool entry)
     {
-        for (int r = 0; r < _radialPartitionCount; r++)
+        double[] testFlashlightRegion = new double[2] { Math.PI / 2, Math.PI };
+        foreach(Unit U in UList)
         {
-            int minFlashlightRegion = (int)Math.Floor((_flashlightRegion[0] * _angularPartitionCount / (2 * Math.PI)));
-            int maxFlashlightRegion = (int)Math.Floor((_flashlightRegion[1] * _angularPartitionCount / (2 * Math.PI)));
-
-            for (int a = minFlashlightRegion+1; a < maxFlashlightRegion; a++)
+            if(U.SoldierC ==null)
             {
-                handleCells(r,a);
+                UList.Remove(U);
             }
         }
+        if (entry) {
+            for (int r = 0; r < _radialPartitionCount; r++)
+            {
+                int minFlashlightRegion = (int)Math.Floor((_flashlightRegion[0] * _angularPartitionCount / (2 * Math.PI)));
+                int maxFlashlightRegion = (int)Math.Floor((_flashlightRegion[1] * _angularPartitionCount / (2 * Math.PI)));
+                for (int a = minFlashlightRegion; a < maxFlashlightRegion; a++)
+                {
+                    handleCells(r,a);
+                }
+            }
+        } else
+        {
+            List<Unit> winPolarRegion1 = new List<Unit>();
+            List<Unit> winPolarRegion2 = new List<Unit>();
+
+
+            foreach (Unit U in UList)
+            {
+                float[] pos = U.SoldierC.getPos();
+                double x = (double)pos[0];
+                double y = (double)pos[1];
+
+                
+                if(inPolarRegion(x,y, FlashlightRegion))
+                {
+                    if (U.Team == 1)
+                    {
+                        winPolarRegion1.Add(U);
+                    } else
+                    {
+                        winPolarRegion2.Add(U);
+                    }
+                } 
+            }
+            int len = winPolarRegion1.Count < winPolarRegion2.Count ? winPolarRegion1.Count : winPolarRegion2.Count;
+            if(winPolarRegion1.Count > winPolarRegion2.Count)
+            {
+                foreach(Unit U in winPolarRegion1)
+                {
+                    U.Health = U.Health * winPolarRegion1.Count / winPolarRegion2.Count;
+                }
+            }
+            if (winPolarRegion2.Count > winPolarRegion1.Count)
+            {
+                foreach (Unit U in winPolarRegion2)
+                {
+                    U.Health = U.Health * winPolarRegion2.Count / winPolarRegion2.Count;
+                }
+            }
+            for (int i = 0; i<len; i++)
+            {
+                winPolarRegion1[i].approach(winPolarRegion2[i]);
+                winPolarRegion2[i].approach(winPolarRegion1[i]);
+                
+            }
+        }
+        
     }
     public void handleUnit(Unit unit, Unit ot)
     {
@@ -172,6 +270,7 @@ public class Grid
             if(distance<AttackRange && (ot.Team != unit.Team))
             {
                 unit.handleAttack(ot);
+                ot.handleAttack(unit);
             } else if (distance>=AttackRange && (ot.Team != unit.Team))
             {
                 unit.approach(ot);
@@ -199,19 +298,20 @@ public class Grid
     //returns the distance between two units
     public double getEuclideanDistance(Unit unit, Unit other)
     {
-        double[] unitCartesianCoords = unit.CartesianCoords;
-        double[] otherCartesianCoords = other.CartesianCoords;
+        Vector2 unitCoords = unit.SoldierC.transform.position;
+        Vector2 otherCoords = other.SoldierC.transform.position;
 
-        double unitX = unitCartesianCoords[0];
-        double unitY = unitCartesianCoords[1];
+        double unitX = unitCoords.x;
+        double unitY = unitCoords.y;
 
-        double otherX = unitCartesianCoords[0];
-        double otherY = unitCartesianCoords[1];
+        double otherX = otherCoords.x;
+        double otherY = otherCoords.y;
 
         double diffX = unitX - otherX;
         double diffY = unitY - otherY;
 
         double euclDistance2D = Math.Sqrt(diffX * diffX + diffY * diffY);
+        Debug.Log("dist " + euclDistance2D);
         return euclDistance2D;
     }
 
@@ -276,7 +376,15 @@ public class Grid
 
         return transformCartesianCoordinatesToPolar(cartesianCoords[0], cartesianCoords[1]);
     }
-
+    bool inPolarRegion(double x, double y, double[] flashlightRegion)
+    {
+        double[] polarPair = transformCartesianCoordinatesToPolar(x, y);
+        if (polarPair[1] >= flashlightRegion[0] && polarPair[1] <= flashlightRegion[1])
+        {
+            return true;
+        }
+        return false;
+    }
 }
 
 public class TeamManager : MonoBehaviour
@@ -292,18 +400,19 @@ public class TeamManager : MonoBehaviour
 
     public static int radialPartitionCount; //# of partitions for a full circle
     public static int angularPartitionCount;
-    static double[] fullRegion = new double[] { 0, 2 * Math.PI };
+    static double[] fullRegion = new double[] { Math.PI, 3/2*Math.PI };
     public Grid MASTERGRID = new Grid(fullRegion, radialPartitionCount, arenaRadius, angularPartitionCount);
     public bool gameOngoing = true;
     void Start()
     {   
-        MASTERGRID.RadialPartitionCount = 5;
-        MASTERGRID.AngularPartitionCount = 8;
+        MASTERGRID.RadialPartitionCount = 1;
+        MASTERGRID.AngularPartitionCount = 1;
         MASTERGRID.ArenaRadius = 310;
         MASTERGRID.AttackRange = 100;
         MASTERGRID.Cells = new Unit[5, 8];
+        MASTERGRID.UList = new List<Unit>();
         spawnArmy(armySize, armySize, 0, MASTERGRID.ArenaRadius);
-        MASTERGRID.handleMelee();
+        MASTERGRID.handleMelee(false);
     }
 
     // Update is called once per frame
@@ -314,26 +423,36 @@ public class TeamManager : MonoBehaviour
         {
             //double[] flashlightRegion = getFlashlightRegion()
 
-            double[] flashlightRegion = new double[2] { 0, 2 * Math.PI };
-            MASTERGRID.FlashlightRegion = flashlightRegion;
-            MASTERGRID.handleMelee();
+            //double[] flashlightRegion = new double[2] { 0, 3/2 * Math.PI };
+            //MASTERGRID.FlashlightRegion = flashlightRegion;
+            MASTERGRID.handleMelee(false);
             gameOngoing = checkFinished();
         }
+        endGame();
+    }
+    void endGame()
+    {
+        //ifFlashlightenergy is zero,
+        MASTERGRID.FlashlightRegion = new double[2] { 0, 2 * Math.PI };
     }
     bool checkFinished()
-    {   
-        int team = 1;
-        foreach(Unit U in MASTERGRID.Cells) {
-            Unit temp = U;
-            while (temp != null)
+    {
+        foreach (Unit U in MASTERGRID.UList)
+        {
+            if (U.SoldierC == null)
             {
-                if(temp.Team != team)
-                {
-                    return false;
-                }
-                temp = temp.Next;
+                MASTERGRID.UList.Remove(U);
             }
-                
+        }
+
+        int team = 1;
+
+        foreach(Unit U in MASTERGRID.UList)
+        {
+            if (U.Team != team)
+            {
+                return false;
+            }
         }
         return true;
     }
@@ -359,13 +478,14 @@ public class TeamManager : MonoBehaviour
             GameObject tempGO = Instantiate(team1Template, cartesianToVector2(cartesianCoords), Quaternion.identity, parent);
             Unit temp = new Unit(tempGO, team, cartesianCoords, transformCartesianCoordinatesToPolar(cartesianCoords));
             MASTERGRID.addUnit(temp);
-
+            MASTERGRID.UList.Add(temp);
         }
         else
         {
             GameObject tempGO = Instantiate(team2Template, cartesianToVector2(cartesianCoords), Quaternion.identity, parent);
             Unit temp = new Unit(tempGO, team, cartesianCoords, transformCartesianCoordinatesToPolar(cartesianCoords));
             MASTERGRID.addUnit(temp);
+            MASTERGRID.UList.Add(temp);
 
             //support code for team selection
         }
@@ -382,7 +502,6 @@ public class TeamManager : MonoBehaviour
             placeSoldier(2, min, max);
         }
     }
-
     double[] generatePolarCoordinates(double maxRadius, double min, double max)
     {
         System.Random rnd = new System.Random();
