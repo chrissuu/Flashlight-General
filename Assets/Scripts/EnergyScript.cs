@@ -2,19 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI; 
-
-public class EnergyScript : MonoBehaviour
+using TMPro; 
+public class EnergyScript : Singleton<FieldOfView>
 {
-  public Text EnergyLevel; 
+  public TextMeshProUGUI EnergyLevel; 
+  public int energyScore; 
 
   void Start() 
   {
-    EnergyLevel.text = FieldOfView.Instance.energy.ToString(); 
+    EnergyLevel = GetComponent<TextMeshProUGUI>(); 
   }
   
   void Update() 
   {
-    EnergyLevel.text = FieldOfView.Instance.energy.ToString(); 
+    FieldOfView fieldOfView = FieldOfView.Instance;  
+    energyScore = fieldOfView.energy; 
+    EnergyLevel.text = "Energy: " + energyScore;  
   }
   
 }

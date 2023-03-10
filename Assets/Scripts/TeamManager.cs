@@ -175,7 +175,7 @@ public class Grid
             } else if (distance>=AttackRange && (ot.Team != unit.Team))
             {
                 unit.approach(ot);
-                ot.apprach(unit);
+                ot.approach(unit);
             }
             ot = ot.Next;
         }

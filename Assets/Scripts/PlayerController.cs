@@ -8,20 +8,27 @@ public class PlayerController : Subject
   [SerializeField] private FieldOfView fieldOfView;
   
   // private FieldOfView _fieldOfView; 
-  private IncreaseAngleInvoker _increaseAngleInvoker; 
-  private DecreaseAngleInvoker _decreaseAngleInvoker; 
+  private PowerUpStopInvoker _powerUpStopInvoker; 
+  private NormalStopInvoker _normalStopInvoker; 
 
   void Start()
   {
-    ICommand increaseAngleCommand = new IncreaseAngleCommand(); 
-    _increaseAngleInvoker = new IncreaseAngleInvoker(increaseAngleCommand);
-    ICommand decreaseAngleCommand = new DecreaseAngleCommand();
-    _decreaseAngleInvoker = new DecreaseAngleInvoker(decreaseAngleCommand);
+    ICommand powerUpStopCommand = new PowerUpStopCommand(); 
+    _powerUpStopInvoker = new PowerUpStopInvoker(powerUpStopCommand);
+    ICommand normalStopCommand = new NormalStopCommand();
+    _normalStopInvoker = new NormalStopInvoker(normalStopCommand);
     
   }
 
   void Update() 
   {
+    /*
+    PAUSING GAME WHEN BATTLE ONGOING 
+    while (___.battleOngoing) {
+      yield WaitForSeconds(1); 
+    }
+     */
+    
     // observer pattern 
     Vector3 targetPosition = GetMouseWorldPosition(); 
     Vector3 aimDir = targetPosition;   
@@ -44,11 +51,11 @@ public class PlayerController : Subject
     // command pattern 
     if (Input.GetKeyDown(KeyCode.W))
     {
-      _increaseAngleInvoker.IncreaseAngle();
+      _powerUpStopInvoker.InvokePowerUpStop(); 
     }
     if (Input.GetKeyDown(KeyCode.S))
     {
-      _decreaseAngleInvoker.DecreaseAngle();
+      _normalStopInvoker.InvokeNormalStop(); 
     }
 
     Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition); 

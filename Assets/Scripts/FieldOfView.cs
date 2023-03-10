@@ -16,20 +16,23 @@ public class FieldOfView : Singleton<FieldOfView>
     private void Start()
     {
       energy = 15; 
- 
       mesh = new Mesh(); 
       GetComponent<MeshFilter>().mesh = mesh; 
-      fov = 20f; // 90 
+      fov = 40f; // 90 
       origin = Vector3.zero; 
       lightOn = false;  
     }
     
     private void LateUpdate()
     {
+      if (energy<=0) {
+        ; 
+        // end game 
+      }
       int rayCount = 50; 
       float angle = startingAngle; 
       float angleIncrease = fov / rayCount; 
-      float viewDistance = 10f; // 50  
+      float viewDistance = 320f; // 50  
       
       
       Vector3[] vertices = new Vector3[rayCount + 1 + 1];
@@ -109,10 +112,10 @@ public class FieldOfView : Singleton<FieldOfView>
 
     }
 
-    public void decreaseEnergy() {
-      //if (powerOn) energy -= 3;  
-      //else energy -= 1; 
-      energy -= 1;  
+    public void decreaseEnergy(bool powerOn) {
+      if (powerOn) energy -= 3;  
+      else energy -= 1;  
+      Debug.Log("Current Energy Level: " + energy); 
     }
 
     public void stopMovement() {
