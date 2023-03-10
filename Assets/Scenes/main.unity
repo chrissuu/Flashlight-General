@@ -256,8 +256,9 @@ MonoBehaviour:
   team1Template: {fileID: 1701195716}
   team2Template: {fileID: 2088356378}
   minRadius: 0
-  armySize: 200
+  armySize: 10
   parent: {fileID: 1261103892}
+  gameOngoing: 1
 --- !u!1 &1450268030
 GameObject:
   m_ObjectHideFlags: 0
@@ -419,7 +420,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1701195716}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -534, y: 1, z: 0}
+  m_LocalPosition: {x: -347, y: -389, z: 0}
   m_LocalScale: {x: 2.5601, y: 3.0259, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -451,7 +452,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2088356378}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -551, y: 49, z: 0}
+  m_LocalPosition: {x: -301, y: -379, z: 0}
   m_LocalScale: {x: 1.8609915, y: 2.6807103, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
