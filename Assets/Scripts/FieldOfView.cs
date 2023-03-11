@@ -8,13 +8,11 @@ public class FieldOfView : Singleton<FieldOfView>
     // Start is called before the first frame update
     private Mesh mesh; 
     public int energy; 
-    public float fov; 
+    private float fov; 
     private Vector3 origin; 
     private float startingAngle; 
-    public bool lightOn; 
-    public float viewDistance;  
-    public float angle; 
-    public int cnt; 
+    private bool lightOn; 
+     
     private void Start()
     {
       energy = 15; 
@@ -22,21 +20,19 @@ public class FieldOfView : Singleton<FieldOfView>
       GetComponent<MeshFilter>().mesh = mesh; 
       fov = 40f; // 90 
       origin = Vector3.zero; 
-      viewDistance = 320f; 
-      lightOn = true;
-      cnt = 0; 
+      lightOn = false;  
     }
     
     private void LateUpdate()
-    { 
+    {
       if (energy<=0) {
         ; 
         // end game 
       }
       int rayCount = 50; 
-      angle = startingAngle; 
+      float angle = startingAngle; 
       float angleIncrease = fov / rayCount; 
-      //float viewDistance = 320f; // 50  
+      float viewDistance = 320f; // 50  
       
       
       Vector3[] vertices = new Vector3[rayCount + 1 + 1];
@@ -63,7 +59,7 @@ public class FieldOfView : Singleton<FieldOfView>
         }
 
         vertexIndex++; 
-        angle += angleIncrease; 
+        angle -= angleIncrease; 
       }
 
       mesh.vertices = vertices; 
@@ -98,14 +94,14 @@ public class FieldOfView : Singleton<FieldOfView>
       startingAngle = GetAngleFromVectorFloat(aimDirection) - fov / 2f;   
     }
 
-    public void SetStatus(bool light)
+    public void SetStatus(bool lightOn)
     {
-      lightOn = light; 
+      this.lightOn = lightOn; 
     }
 
     public void ChangeColor()
     {
-      if (lightOn) 
+      if (this.lightOn) 
       {
         GetComponent<MeshRenderer>().material.color = Color.yellow; 
       } 

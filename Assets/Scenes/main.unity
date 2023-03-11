@@ -197,11 +197,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   energy: 0
-  fov: 0
-  lightOn: 0
-  viewDistance: 0
-  angle: 0
-  cnt: 0
 --- !u!4 &152472266
 Transform:
   m_ObjectHideFlags: 0
@@ -500,7 +495,7 @@ MonoBehaviour:
   team1Template: {fileID: 1701195716}
   team2Template: {fileID: 2088356378}
   minRadius: 0
-  armySize: 100
+  armySize: 10
   parent: {fileID: 1261103892}
   gameOngoing: 1
 --- !u!1 &1450268030
@@ -587,63 +582,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &1558323591
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 1837829505}
-    m_Modifications:
-    - target: {fileID: 5400303784371446313, guid: 38eb5750c2b40fc39bd5699ebf607217, type: 3}
-      propertyPath: m_RootOrder
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5400303784371446313, guid: 38eb5750c2b40fc39bd5699ebf607217, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -338
-      objectReference: {fileID: 0}
-    - target: {fileID: 5400303784371446313, guid: 38eb5750c2b40fc39bd5699ebf607217, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 1644
-      objectReference: {fileID: 0}
-    - target: {fileID: 5400303784371446313, guid: 38eb5750c2b40fc39bd5699ebf607217, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -103.63636
-      objectReference: {fileID: 0}
-    - target: {fileID: 5400303784371446313, guid: 38eb5750c2b40fc39bd5699ebf607217, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5400303784371446313, guid: 38eb5750c2b40fc39bd5699ebf607217, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5400303784371446313, guid: 38eb5750c2b40fc39bd5699ebf607217, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5400303784371446313, guid: 38eb5750c2b40fc39bd5699ebf607217, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5400303784371446313, guid: 38eb5750c2b40fc39bd5699ebf607217, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5400303784371446313, guid: 38eb5750c2b40fc39bd5699ebf607217, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5400303784371446313, guid: 38eb5750c2b40fc39bd5699ebf607217, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5400303784371446315, guid: 38eb5750c2b40fc39bd5699ebf607217, type: 3}
-      propertyPath: m_Name
-      value: Square
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 38eb5750c2b40fc39bd5699ebf607217, type: 3}
 --- !u!1 &1701195716
 GameObject:
   m_ObjectHideFlags: 0
@@ -654,7 +592,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1701195718}
   - component: {fileID: 1701195717}
-  - component: {fileID: 1701195719}
   m_Layer: 0
   m_Name: Rock
   m_TagString: Untagged
@@ -729,21 +666,6 @@ Transform:
   m_Father: {fileID: 1261103892}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1701195719
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1701195716}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ff46b458cea227943a8498639aec0a64, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 0.0005
-  soldier: {fileID: 1701195716}
-  canMove: 1
 --- !u!1 &1785566309
 GameObject:
   m_ObjectHideFlags: 0
@@ -905,7 +827,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2073948714}
-  - {fileID: 1877696096}
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -914,11 +835,6 @@ RectTransform:
   m_AnchoredPosition: {x: -150, y: -227}
   m_SizeDelta: {x: 1161.9999, y: 760}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!4 &1877696096 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 5400303784371446313, guid: 38eb5750c2b40fc39bd5699ebf607217, type: 3}
-  m_PrefabInstance: {fileID: 1558323591}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1892758338
 GameObject:
   m_ObjectHideFlags: 0
@@ -1171,7 +1087,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2088356379}
   - component: {fileID: 2088356380}
-  - component: {fileID: 2088356381}
   m_Layer: 0
   m_Name: Scissor
   m_TagString: Untagged
@@ -1246,18 +1161,3 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &2088356381
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2088356378}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ff46b458cea227943a8498639aec0a64, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 0.0005
-  soldier: {fileID: 2088356378}
-  canMove: 1

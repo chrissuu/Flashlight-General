@@ -28,7 +28,7 @@ public class PlayerController : Subject
       yield WaitForSeconds(1); 
     }
      */
-     
+    
     // observer pattern 
     Vector3 targetPosition = GetMouseWorldPosition(); 
     Vector3 aimDir = targetPosition;   
