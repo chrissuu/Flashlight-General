@@ -5,19 +5,21 @@ using System;
 
 public class SoldierController : MonoBehaviour
 {
-    public float speed = 0.0005f;
+    public float speed = 0.005f;
     public GameObject soldier;
     public bool canMove = true;
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {
+
        
-       
+      double[] temp = new double[2] {0,0};
+      moveSoldier(temp);
     }
 
     public void stopMoving()
@@ -39,7 +41,7 @@ public class SoldierController : MonoBehaviour
         return pos;
     }
     public void moveSoldier(double[] cartesianCoords)
-    {
+    {	
         Transform transform = GetComponent<Transform>();
         Vector2 currpos = transform.position;
         float x = currpos.x;

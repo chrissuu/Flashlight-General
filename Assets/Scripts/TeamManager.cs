@@ -107,7 +107,7 @@ public class Unit
         double diffY = unitY - otherY;
 
         double euclDistance2D = Math.Sqrt(diffX * diffX + diffY * diffY);
-        Debug.Log("dist " + euclDistance2D);
+        //Debug.Log("dist " + euclDistance2D);
         return euclDistance2D;
     }
 }
@@ -400,7 +400,9 @@ public class TeamManager : MonoBehaviour
 
     public static int radialPartitionCount; //# of partitions for a full circle
     public static int angularPartitionCount;
-    static double[] fullRegion = new double[] { Math.PI, 3/2*Math.PI };
+    //static double[] fullRegion = new double[] { Math.PI, 3/2*Math.PI };
+    static double[] fullRegion = new double[] { 0, 2*Math.PI};
+
     public Grid MASTERGRID = new Grid(fullRegion, radialPartitionCount, arenaRadius, angularPartitionCount);
     public bool gameOngoing = true;
     void Start()
@@ -418,22 +420,29 @@ public class TeamManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-       
         if(gameOngoing)
         {
             //double[] flashlightRegion = getFlashlightRegion()
-
-            //double[] flashlightRegion = new double[2] { 0, 3/2 * Math.PI };
+            //FieldOfView fieldOfView = FieldOfView.Instance; 
+            //double[] flashlightRegion = new double[2] {fieldOfView.viewDistance, (fieldOfView.fov + fieldOfView.angle)*(Math.PI/180)};
             //MASTERGRID.FlashlightRegion = flashlightRegion;
             MASTERGRID.handleMelee(false);
             gameOngoing = checkFinished();
         }
-        endGame();
+        else endGame();
+
     }
     void endGame()
     {
+        Debug.Log("END GAME"); 
+        //FieldOfView fieldOfView = FieldOfView.Instance; 
         //ifFlashlightenergy is zero,
+        /*
+        if (fieldOfView.energy<=0) {
+            MASTERGRID.FlashlightRegion = new double[2] { 0, 2 * Math.PI };
+        }*/
         MASTERGRID.FlashlightRegion = new double[2] { 0, 2 * Math.PI };
+
     }
     bool checkFinished()
     {
@@ -475,15 +484,21 @@ public class TeamManager : MonoBehaviour
     {
         if (team == 1)
         {
+            
             GameObject tempGO = Instantiate(team1Template, cartesianToVector2(cartesianCoords), Quaternion.identity, parent);
+            SoldierController sc = tempGO.GetComponent<SoldierController>();
             Unit temp = new Unit(tempGO, team, cartesianCoords, transformCartesianCoordinatesToPolar(cartesianCoords));
+            temp.SoldierC = sc;
             MASTERGRID.addUnit(temp);
             MASTERGRID.UList.Add(temp);
         }
         else
-        {
+        {	
+          
             GameObject tempGO = Instantiate(team2Template, cartesianToVector2(cartesianCoords), Quaternion.identity, parent);
             Unit temp = new Unit(tempGO, team, cartesianCoords, transformCartesianCoordinatesToPolar(cartesianCoords));
+            SoldierController sc = tempGO.GetComponent<SoldierController>();
+            temp.SoldierC = sc;
             MASTERGRID.addUnit(temp);
             MASTERGRID.UList.Add(temp);
 
@@ -506,7 +521,7 @@ public class TeamManager : MonoBehaviour
     {
         System.Random rnd = new System.Random();
 
-        double randRadialPosition = min + (max - min) * Math.Sqrt(rnd.NextDouble());
+        double randRadialPosition = min + (max - min) * (rnd.NextDouble());
         double randAngleValue = 2 * Math.PI * rnd.NextDouble();
 
         double[] storePolarCoordinates = new double[] { randRadialPosition, randAngleValue };
