@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-
 public class Unit
 {
     private int team;
@@ -17,8 +16,8 @@ public class Unit
     private double attackdmg = 100;
     public double attackRange = 10;
     public SoldierController SoldierC
-    { 
-        get => sc; 
+    {
+        get => sc;
         set => sc = value;
     }
 
@@ -71,7 +70,6 @@ public class Unit
     {
         SoldierC.stopMoving();
         ot.health -= attackdmg;
-        Debug.Log("health " + ot.health);
         if (ot.health < 0)
         {
             UnityEngine.Object.Destroy(ot.Soldier, 0.0f);
@@ -82,15 +80,13 @@ public class Unit
 
     public void approach(Unit ot)
     {
-        SoldierC.moveSoldier(ot.CartesianCoords);
-        ot.SoldierC.moveSoldier(CartesianCoords);
 
-        if(getEuclideanDistance(ot, this) < attackRange)
+        if (getEuclideanDistance(ot, this) < attackRange)
         {
             handleAttack(ot);
             ot.handleAttack(this);
         }
-        
+
     }
     public double getEuclideanDistance(Unit unit, Unit other)
     {
@@ -107,7 +103,6 @@ public class Unit
         double diffY = unitY - otherY;
 
         double euclDistance2D = Math.Sqrt(diffX * diffX + diffY * diffY);
-        Debug.Log("dist " + euclDistance2D);
         return euclDistance2D;
     }
 }
@@ -120,6 +115,13 @@ public class Grid
     private double[] _flashlightRegion;
     private Unit[,] _cells;
     private List<Unit> units;
+    private SoldierManager _SM;
+
+    public SoldierManager SManager
+    {
+        get => _SM;
+        set => _SM = value;
+    }
 
     public List<Unit> UList
     {
@@ -178,9 +180,7 @@ public class Grid
 
 
         int cellX = (int)Math.Floor(pp[0] / (_arenaRadius / _radialPartitionCount));
-        Debug.Log("cellX " + cellX);
         int cellY = (int)Math.Floor((pp[1] / (2*Math.PI / _angularPartitionCount)));
-        Debug.Log("cellY " + cellY);
         //Debug.Log("Rank " + _cells.Rank);
         //Debug.Log("Length " + _cells.Length);
        
@@ -195,12 +195,12 @@ public class Grid
     //basically starts the attack
     public void handleMelee(bool entry)
     {
-        double[] testFlashlightRegion = new double[2] { Math.PI / 2, Math.PI };
-        foreach(Unit U in UList)
+        double[] testFlashlightRegion = new double[2] { 0, 2* Math.PI };
+        foreach(SoldierController U in SManager.allSoldiers)
         {
-            if(U.SoldierC ==null)
+            if(U == null)
             {
-                UList.Remove(U);
+                SManager.allSoldiers.Remove(U);
             }
         }
         if (entry) {
@@ -215,13 +215,13 @@ public class Grid
             }
         } else
         {
-            List<Unit> winPolarRegion1 = new List<Unit>();
-            List<Unit> winPolarRegion2 = new List<Unit>();
+            List<SoldierController> winPolarRegion1 = new List<SoldierController>();
+            List<SoldierController> winPolarRegion2 = new List<SoldierController>();
 
 
-            foreach (Unit U in UList)
+            foreach (SoldierController U in SManager.allSoldiers)
             {
-                float[] pos = U.SoldierC.getPos();
+                float[] pos = U.getPos();
                 double x = (double)pos[0];
                 double y = (double)pos[1];
 
@@ -238,25 +238,30 @@ public class Grid
                 } 
             }
             int len = winPolarRegion1.Count < winPolarRegion2.Count ? winPolarRegion1.Count : winPolarRegion2.Count;
+            Debug.Log("winpolarregion1 count " + winPolarRegion1.Count);
+            Debug.Log("winpolarregion2 count " + winPolarRegion2.Count);
+
+            Debug.Log("len" + len);
             if(winPolarRegion1.Count > winPolarRegion2.Count)
             {
-                foreach(Unit U in winPolarRegion1)
+                foreach(SoldierController U in winPolarRegion1)
                 {
                     U.Health = U.Health * winPolarRegion1.Count / winPolarRegion2.Count;
                 }
             }
             if (winPolarRegion2.Count > winPolarRegion1.Count)
             {
-                foreach (Unit U in winPolarRegion2)
+                foreach (SoldierController U in winPolarRegion2)
                 {
                     U.Health = U.Health * winPolarRegion2.Count / winPolarRegion2.Count;
                 }
             }
             for (int i = 0; i<len; i++)
             {
-                winPolarRegion1[i].approach(winPolarRegion2[i]);
-                winPolarRegion2[i].approach(winPolarRegion1[i]);
-                
+                Debug.Log("isnull?" + winPolarRegion1[i]);
+                winPolarRegion1[i].target = winPolarRegion2[i];
+                winPolarRegion2[i].target = winPolarRegion1[i];
+              
             }
         }
         
@@ -311,7 +316,6 @@ public class Grid
         double diffY = unitY - otherY;
 
         double euclDistance2D = Math.Sqrt(diffX * diffX + diffY * diffY);
-        Debug.Log("dist " + euclDistance2D);
         return euclDistance2D;
     }
 
@@ -391,7 +395,7 @@ public class TeamManager : MonoBehaviour
 {
     public GameObject team1Template; //rocks
     public GameObject team2Template; //scissors
-
+    public SoldierManager SM;
     // Start is called before the first frame update
     public static double arenaRadius; //~310
     public double minRadius;
@@ -400,56 +404,72 @@ public class TeamManager : MonoBehaviour
 
     public static int radialPartitionCount; //# of partitions for a full circle
     public static int angularPartitionCount;
-    static double[] fullRegion = new double[] { Math.PI, 3/2*Math.PI };
-    public Grid MASTERGRID = new Grid(fullRegion, radialPartitionCount, arenaRadius, angularPartitionCount);
+    //static double[] fullRegion = new double[] { Math.PI, 3/2*Math.PI };
+    static double[] fullRegion = new double[] { 0, 0 };
+
+    public Grid MASTERGRID;
     public bool gameOngoing = true;
+    public List<SoldierController> ultiSCLIST;
     void Start()
-    {   
+    {
+        MASTERGRID = new Grid(fullRegion, radialPartitionCount, arenaRadius, angularPartitionCount);
         MASTERGRID.RadialPartitionCount = 1;
         MASTERGRID.AngularPartitionCount = 1;
         MASTERGRID.ArenaRadius = 310;
         MASTERGRID.AttackRange = 100;
         MASTERGRID.Cells = new Unit[5, 8];
         MASTERGRID.UList = new List<Unit>();
-        spawnArmy(armySize, armySize, 0, MASTERGRID.ArenaRadius);
+        MASTERGRID.SManager = SM;
+        spawnArmy(armySize, armySize, 0, MASTERGRID.ArenaRadius, MASTERGRID);
         MASTERGRID.handleMelee(false);
+        ultiSCLIST = new List<SoldierController>();
     }
 
     // Update is called once per frame
     void Update()
     {
-       
-        if(gameOngoing)
-        {
-            //double[] flashlightRegion = getFlashlightRegion()
 
-            //double[] flashlightRegion = new double[2] { 0, 3/2 * Math.PI };
-            //MASTERGRID.FlashlightRegion = flashlightRegion;
+        if (gameOngoing)
+        {
+            //double[] flashlightRegion = getFlashlightRegion();
+            FieldOfView fieldOfView = FieldOfView.Instance;
+            double[] flashlightRegion = new double[2] { fieldOfView.viewDistance, (fieldOfView.fov + fieldOfView.angle) * (Math.PI / 180) };
+            MASTERGRID.FlashlightRegion = flashlightRegion;
             MASTERGRID.handleMelee(false);
             gameOngoing = checkFinished();
         }
-        endGame();
+        else
+        {
+            endGame();
+        }
+
     }
-    void endGame()
+        void endGame()
     {
-        //ifFlashlightenergy is zero,
-        MASTERGRID.FlashlightRegion = new double[2] { 0, 2 * Math.PI };
+        Debug.Log("END GAME"); 
+        FieldOfView fieldOfView = FieldOfView.Instance; 
+       
+        
+        if (fieldOfView.energy<=0) {
+            MASTERGRID.FlashlightRegion = new double[2] { 0, 2 * Math.PI };
+        }
+
     }
     bool checkFinished()
     {
-        foreach (Unit U in MASTERGRID.UList)
+        foreach (SoldierController U in MASTERGRID.SManager.allSoldiers)
         {
-            if (U.SoldierC == null)
+            if (U == null)
             {
-                MASTERGRID.UList.Remove(U);
+                MASTERGRID.SManager.allSoldiers.Remove(U);
             }
         }
 
         int team = 1;
 
-        foreach(Unit U in MASTERGRID.UList)
+        foreach (SoldierController U in MASTERGRID.SManager.allSoldiers)
         {
-            if (U.Team != team)
+            if (U.Team!=team)
             {
                 return false;
             }
@@ -462,44 +482,53 @@ public class TeamManager : MonoBehaviour
 
     }
 
-    void placeSoldier(int team, double min, double max)
+    void placeSoldier(int team, double min, double max, Grid grid)
     {
         double[] randomPos = generatePolarCoordinates(arenaRadius, min, max);
 
         double[] cartesianCoords = transformPolarCoordinatesToCartesian(randomPos[0], randomPos[1]);
 
-        spawnSoldier(team, cartesianCoords);
+        spawnSoldier(team, cartesianCoords, grid);
 
     }
-    public void spawnSoldier(int team, double[] cartesianCoords)
+    public void spawnSoldier(int team, double[] cartesianCoords, Grid grid)
     {
         if (team == 1)
         {
+            
             GameObject tempGO = Instantiate(team1Template, cartesianToVector2(cartesianCoords), Quaternion.identity, parent);
+            SoldierController sc = tempGO.GetComponent<SoldierController>();
             Unit temp = new Unit(tempGO, team, cartesianCoords, transformCartesianCoordinatesToPolar(cartesianCoords));
-            MASTERGRID.addUnit(temp);
-            MASTERGRID.UList.Add(temp);
+            temp.SoldierC = sc;
+            grid.addUnit(temp);
+            grid.SManager.addSoldierController(sc, team);
+            grid.UList.Add(temp);
         }
         else
-        {
+        {	
+          
             GameObject tempGO = Instantiate(team2Template, cartesianToVector2(cartesianCoords), Quaternion.identity, parent);
             Unit temp = new Unit(tempGO, team, cartesianCoords, transformCartesianCoordinatesToPolar(cartesianCoords));
-            MASTERGRID.addUnit(temp);
-            MASTERGRID.UList.Add(temp);
+            SoldierController sc = tempGO.GetComponent<SoldierController>();
+            temp.SoldierC = sc;
+            grid.addUnit(temp);
+            grid.SManager.addSoldierController(sc, team);
+            grid.UList.Add(temp);
+            Debug.Log("SpawnSoldier " + sc);
 
             //support code for team selection
         }
     }
-    void spawnArmy(int sizeTeam1, int sizeTeam2, double min, double max)
+    void spawnArmy(int sizeTeam1, int sizeTeam2, double min, double max, Grid grid)
     {
         for (int i = 0; i < sizeTeam1; i++)
         {
-            placeSoldier(1, min, max);
+            placeSoldier(1, min, max, grid);
         }
 
         for (int i = 0; i < sizeTeam2; i++)
         {
-            placeSoldier(2, min, max);
+            placeSoldier(2, min, max, grid);
         }
     }
     double[] generatePolarCoordinates(double maxRadius, double min, double max)

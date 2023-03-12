@@ -5,8 +5,9 @@ using UnityEngine;
 public class SoldierManager : MonoBehaviour
 {
     public SoldierController sc;
-    public Queue<GameObject> storeSoldiersTeam1;
-    public Queue<GameObject> storeSoldiersTeam2;
+    public List<SoldierController> storeSoldiersTeam1;
+    public List<SoldierController> storeSoldiersTeam2;
+    public List<SoldierController> allSoldiers;
     // Start is called before the first frame update
     void Start()
     {
@@ -18,19 +19,16 @@ public class SoldierManager : MonoBehaviour
     {
 
     }
-
-    public void spawnSoldier(int team, double[] cartesianCoords)
-    {
-        if (team == 1)
+    public void addSoldierController(SoldierController soldierController, int team)
+    {   
+        allSoldiers.Add(soldierController);
+        if(team == 1)
         {
-            GameObject soldier = storeSoldiersTeam1.Dequeue();
-            soldier.transform.position = new Vector2((float)cartesianCoords[0], (float)cartesianCoords[1]);
-        }
-        else
+            storeSoldiersTeam1.Add(soldierController);
+        } else
         {
-            GameObject soldier = storeSoldiersTeam2.Dequeue();
-            soldier.transform.position = new Vector2((float)cartesianCoords[0], (float)cartesianCoords[1]);
-            //support code for team selection
+            storeSoldiersTeam2.Add(soldierController);
         }
     }
+
 }
