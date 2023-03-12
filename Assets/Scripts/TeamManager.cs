@@ -193,9 +193,9 @@ public class Grid
         }
     }
     //basically starts the attack
-    public void handleMelee(bool entry)
+    public void handleMelee(bool entry, double[] flashlightRegion)
     {
-        double[] testFlashlightRegion = new double[2] { 0, 2* Math.PI };
+        double[] testFlashlightRegion = flashlightRegion;
         foreach(SoldierController U in SManager.allSoldiers)
         {
             if(U == null)
@@ -226,7 +226,7 @@ public class Grid
                 double y = (double)pos[1];
 
                 
-                if(inPolarRegion(x,y, FlashlightRegion))
+                if(inPolarRegion(x,y, testFlashlightRegion))
                 {
                     if (U.Team == 1)
                     {
@@ -238,10 +238,10 @@ public class Grid
                 } 
             }
             int len = winPolarRegion1.Count < winPolarRegion2.Count ? winPolarRegion1.Count : winPolarRegion2.Count;
-            Debug.Log("winpolarregion1 count " + winPolarRegion1.Count);
-            Debug.Log("winpolarregion2 count " + winPolarRegion2.Count);
+            //Debug.Log("winpolarregion1 count " + winPolarRegion1.Count);
+            //Debug.Log("winpolarregion2 count " + winPolarRegion2.Count);
 
-            Debug.Log("len" + len);
+            //Debug.Log("len" + len);
             if(winPolarRegion1.Count > winPolarRegion2.Count)
             {
                 foreach(SoldierController U in winPolarRegion1)
@@ -258,7 +258,7 @@ public class Grid
             }
             for (int i = 0; i<len; i++)
             {
-                Debug.Log("isnull?" + winPolarRegion1[i]);
+                //Debug.Log("isnull?" + winPolarRegion1[i]);
                 winPolarRegion1[i].target = winPolarRegion2[i];
                 winPolarRegion2[i].target = winPolarRegion1[i];
               
@@ -401,15 +401,16 @@ public class TeamManager : MonoBehaviour
     public double minRadius;
     public int armySize;
     public Transform parent;
-
+    
     public static int radialPartitionCount; //# of partitions for a full circle
     public static int angularPartitionCount;
     //static double[] fullRegion = new double[] { Math.PI, 3/2*Math.PI };
-    static double[] fullRegion = new double[] { 0, 0 };
-
+    public static double[] fullRegion = new double[] { 0, 0 };
+    
     public Grid MASTERGRID;
     public bool gameOngoing = true;
     public List<SoldierController> ultiSCLIST;
+    public static FieldOfView fov;
     void Start()
     {
         MASTERGRID = new Grid(fullRegion, radialPartitionCount, arenaRadius, angularPartitionCount);
@@ -421,27 +422,23 @@ public class TeamManager : MonoBehaviour
         MASTERGRID.UList = new List<Unit>();
         MASTERGRID.SManager = SM;
         spawnArmy(armySize, armySize, 0, MASTERGRID.ArenaRadius, MASTERGRID);
-        MASTERGRID.handleMelee(false);
+        MASTERGRID.handleMelee(false, fullRegion);
         ultiSCLIST = new List<SoldierController>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        Debug.Log("is null? " + fov);
+        //MASTERGRID.FlashlightRegion = new double[2] { 0, 2 * Math.PI };
+        //MASTERGRID.handleMelee(false);
+        //double[] flashlightRegion = getFlashlightRegion();
+        FieldOfView fieldOfView = fov.Instance;
 
-        if (gameOngoing)
-        {
-            //double[] flashlightRegion = getFlashlightRegion();
-            FieldOfView fieldOfView = FieldOfView.Instance;
-            double[] flashlightRegion = new double[2] { fieldOfView.viewDistance, (fieldOfView.fov + fieldOfView.angle) * (Math.PI / 180) };
-            MASTERGRID.FlashlightRegion = flashlightRegion;
-            MASTERGRID.handleMelee(false);
-            gameOngoing = checkFinished();
-        }
-        else
-        {
-            endGame();
-        }
+        fullRegion = new double[2] { fieldOfView.viewDistance, (fieldOfView.fov + fieldOfView.angle) * (Math.PI / 180) };
+        MASTERGRID.handleMelee(false, fullRegion);
+        //Debug.Log("Flashlight Region " + fullRegion[0] + ", " + fullRegion[1]);
+        //Debug.Log("FIeld of View " + fieldOfView.viewDistance + ", " + ((fieldOfView.fov + fieldOfView.angle) * (Math.PI / 180)));
 
     }
         void endGame()
@@ -514,7 +511,7 @@ public class TeamManager : MonoBehaviour
             grid.addUnit(temp);
             grid.SManager.addSoldierController(sc, team);
             grid.UList.Add(temp);
-            Debug.Log("SpawnSoldier " + sc);
+            //Debug.Log("SpawnSoldier " + sc);
 
             //support code for team selection
         }
