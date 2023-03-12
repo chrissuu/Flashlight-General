@@ -435,8 +435,11 @@ public class TeamManager : Singleton<FieldOfView>
         //double[] flashlightRegion = getFlashlightRegion();
         FieldOfView fieldOfView = FieldOfView.Instance;
 
-        fullRegion = new double[2] { fieldOfView.viewDistance, (fieldOfView.fov + fieldOfView.angle) * (Math.PI / 180) };
+        // fullRegion = new double[2] { fieldOfView.viewDistance, (fieldOfView.fov + fieldOfView.angle) * (Math.PI / 180) };
+        fullRegion = new double[2] { Convert.ToDouble(320f), (Convert.ToDouble(40f) + Convert.ToDouble(fieldOfView.angle)) * (Math.PI / 180) };
         MASTERGRID.handleMelee(false, fullRegion);
+        //Debug.Log(fieldOfView.angle); 
+
         //Debug.Log("Flashlight Region " + fullRegion[0] + ", " + fullRegion[1]);
         //Debug.Log("FIeld of View " + fieldOfView.viewDistance + ", " + ((fieldOfView.fov + fieldOfView.angle) * (Math.PI / 180)));
 

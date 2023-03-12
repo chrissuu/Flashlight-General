@@ -13,7 +13,6 @@ public class FlashlightWhiteState : FlashlightBaseState
     FieldOfView fieldOfView = FieldOfView.Instance; 
     
     if (fieldOfView.lightOn == true ){
-      Debug.Log("1"); 
       flashlight.SwitchState(flashlight.yellowState); 
     }
   }

@@ -255,7 +255,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5bf86cdc4d724a6dfb23949109af0c0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fieldOfView: {fileID: 152472265}
 --- !u!212 &1020621097
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -296,7 +295,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: e518f4e5ca47b1738b0e935577846ab9, type: 3}
   m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_FlipX: 0
@@ -470,7 +469,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _flashlightSubject: {fileID: 1020621096}
-  fieldOfView: {fileID: 152472265}
 --- !u!4 &1892758340
 Transform:
   m_ObjectHideFlags: 0

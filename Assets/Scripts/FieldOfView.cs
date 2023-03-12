@@ -27,7 +27,7 @@ public class FieldOfView : Singleton<FieldOfView>
       cnt = 0; 
     }
     
-    private void LateUpdate()
+    private void Update()
     { 
       if (energy<=0) {
         ; 
@@ -70,7 +70,8 @@ public class FieldOfView : Singleton<FieldOfView>
       mesh.uv = uv; 
       mesh.triangles = triangles; 
       
-      // mesh.RecalculateBounds();
+      mesh.RecalculateBounds();
+      //
     }
      
     public static Vector3 GetVectorFromAngle (float angle)
@@ -105,6 +106,7 @@ public class FieldOfView : Singleton<FieldOfView>
 
     public void ChangeColor()
     {
+      //Debug.Log("Color change"); 
       if (lightOn) 
       {
         GetComponent<MeshRenderer>().material.color = Color.yellow; 

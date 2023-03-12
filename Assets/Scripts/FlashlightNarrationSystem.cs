@@ -2,13 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FlashlightNarrationSystem : MonoBehaviour, IObserver
+public class FlashlightNarrationSystem : Singleton<FieldOfView>, IObserver
 {
   [SerializeField] Subject _flashlightSubject;
-  [SerializeField] private FieldOfView fieldOfView;
+  //[SerializeField] private FieldOfView fieldOfView;
 
   public void OnNotify(FlashlightActions action)
   {
+    FieldOfView fieldOfView = FieldOfView.Instance; 
     if (action == FlashlightActions.ChangeColor)
     {
       fieldOfView.ChangeColor(); 

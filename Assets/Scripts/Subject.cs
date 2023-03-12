@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Subject : MonoBehaviour
+public class Subject : Singleton<FieldOfView>
 {
 
   private List<IObserver> _observers = new List<IObserver>(); 

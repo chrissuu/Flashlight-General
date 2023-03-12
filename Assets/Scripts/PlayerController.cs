@@ -3,21 +3,24 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerController : Subject
+                                
 {
 
-  [SerializeField] private FieldOfView fieldOfView;
-  
+  // [SerializeField] private FieldOfView fieldOfView;
+  FieldOfView fieldOfView;  
   // private FieldOfView _fieldOfView; 
   private PowerUpStopInvoker _powerUpStopInvoker; 
   private NormalStopInvoker _normalStopInvoker; 
 
   void Start()
   {
+    fieldOfView = FieldOfView.Instance; 
     ICommand powerUpStopCommand = new PowerUpStopCommand(); 
     _powerUpStopInvoker = new PowerUpStopInvoker(powerUpStopCommand);
     ICommand normalStopCommand = new NormalStopCommand();
     _normalStopInvoker = new NormalStopInvoker(normalStopCommand);
-    
+    Cursor.lockState = CursorLockMode.None;
+
   }
 
   void Update() 
@@ -33,6 +36,7 @@ public class PlayerController : Subject
     Vector3 targetPosition = GetMouseWorldPosition(); 
     Vector3 aimDir = targetPosition;   
 
+    //FieldOfView fieldOfView = FieldOfView.Instance; 
     fieldOfView.SetAimDirection(aimDir); 
     fieldOfView.SetOrigin(transform.position);
     
