@@ -391,7 +391,7 @@ public class Grid
     }
 }
 
-public class TeamManager : MonoBehaviour
+public class TeamManager : Singleton<FieldOfView>
 {
     public GameObject team1Template; //rocks
     public GameObject team2Template; //scissors
@@ -410,7 +410,7 @@ public class TeamManager : MonoBehaviour
     public Grid MASTERGRID;
     public bool gameOngoing = true;
     public List<SoldierController> ultiSCLIST;
-    public static FieldOfView fov;
+    //public static FieldOfView fov;
     void Start()
     {
         MASTERGRID = new Grid(fullRegion, radialPartitionCount, arenaRadius, angularPartitionCount);
@@ -429,11 +429,11 @@ public class TeamManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log("is null? " + fov);
+        //Debug.Log("is null? " + fov);
         //MASTERGRID.FlashlightRegion = new double[2] { 0, 2 * Math.PI };
         //MASTERGRID.handleMelee(false);
         //double[] flashlightRegion = getFlashlightRegion();
-        FieldOfView fieldOfView = fov.Instance;
+        FieldOfView fieldOfView = FieldOfView.Instance;
 
         fullRegion = new double[2] { fieldOfView.viewDistance, (fieldOfView.fov + fieldOfView.angle) * (Math.PI / 180) };
         MASTERGRID.handleMelee(false, fullRegion);
