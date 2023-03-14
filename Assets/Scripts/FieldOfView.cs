@@ -12,14 +12,17 @@ public class FieldOfView : Singleton<FieldOfView>
     private Vector3 origin; 
     private float startingAngle; 
     public bool lightOn; 
-    public float viewDistance;  
+    private float viewDistance;  
     public float angle; 
     public int cnt; 
+
     private void Start()
     {
+
       energy = 15; 
       mesh = new Mesh(); 
       GetComponent<MeshFilter>().mesh = mesh; 
+      GetComponent<MeshRenderer>().enabled = true; 
       fov = 40f; // 90 
       origin = Vector3.zero; 
       viewDistance = 320f; 
@@ -36,7 +39,7 @@ public class FieldOfView : Singleton<FieldOfView>
       int rayCount = 50; 
       angle = startingAngle; 
       float angleIncrease = fov / rayCount; 
-      //float viewDistance = 320f; // 50  
+      viewDistance = 320f; // 50  
       
       
       Vector3[] vertices = new Vector3[rayCount + 1 + 1];
@@ -49,8 +52,8 @@ public class FieldOfView : Singleton<FieldOfView>
       int triangleIndex = 0; 
       for (int i = 0; i <= rayCount; i++)
       {
-        Vector3 vertex = origin + GetVectorFromAngle(angle) * viewDistance;  
-        RaycastHit2D raycastHit2D = Physics2D.Raycast(origin, GetVectorFromAngle(angle), viewDistance);  
+        Vector3 vertex = origin + GetVectorFromAngle(angle) * 320f;  
+        RaycastHit2D raycastHit2D = Physics2D.Raycast(origin, GetVectorFromAngle(angle), 320f);  
         vertices[vertexIndex] = vertex;
         
         if (i>0)
@@ -70,7 +73,7 @@ public class FieldOfView : Singleton<FieldOfView>
       mesh.uv = uv; 
       mesh.triangles = triangles; 
       
-      mesh.RecalculateBounds();
+      // mesh.RecalculateBounds();
       //
     }
      
@@ -110,6 +113,7 @@ public class FieldOfView : Singleton<FieldOfView>
       if (lightOn) 
       {
         GetComponent<MeshRenderer>().material.color = Color.yellow; 
+        Debug.Log(GetComponent<MeshRenderer>().material.color); 
       } 
       else 
       {
